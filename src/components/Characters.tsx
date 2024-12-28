@@ -1,62 +1,19 @@
-"use client";
-import { useEffect, useState } from "react";
 
-export const Characters = () => {
-  const [array, setArray] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [dots, setDots] = useState("");
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((prevDots) => {
-        if (prevDots === "...") return ""; 
-        return prevDots + ".";
-      });
-    }, 500); 
-
-    return () => clearInterval(interval); 
-  }, []);
-
-  const uploadCharacters = async () => {
-    const newCharacters: any[] = [];
-    try {
-      for (let i = 0; i < 50; ) {
-        const randomIndex = Math.floor(Math.random() * 826) + 1; 
-        const response = await fetch(`https://rickandmortyapi.com/api/character/${randomIndex}`);
-        const jsonResponse = await response.json();
-
-        if (!newCharacters.some(obj => obj.id == randomIndex)) {
-          newCharacters.push(jsonResponse);
-          setArray(newCharacters);
-          i++; 
-        }
+export const Characters = async () => {
+  let array = []
+  while(array.length < 20){
+      const randomNumber = Math.floor(Math.random() * 826) + 1;
+      const response = await fetch(`https://rickandmortyapi.com/api/character/${randomNumber}`);
+      const jsonResponse = await response.json();
+      if (!array.some(obj => obj.id === jsonResponse.id)) {
+        array.push(jsonResponse);
       }
-    } catch (error) {
-      console.error("Error fetching characters:", error);
-    }
+      console.log(jsonResponse.results)
+  }
 
-    setTimeout(() => {
-      setIsLoading(false); 
-    }, 4000); 
-  };
-
-  useEffect(() => {
-    uploadCharacters();
-  }, []);
-
+  
   return (
     <div style={{ width: "100%", display: "flex", justifyContent: "center", padding: "20px" }}>
-      <p
-        style={{
-          visibility: `${isLoading ? "visible" : "hidden"}`,
-          position: "absolute",
-          fontSize: "24px",
-          fontWeight: "bold",
-          color: "#555",
-        }}
-      >
-        Loading{dots}
-      </p>
       <div
         style={{
           display: "flex",
@@ -64,7 +21,6 @@ export const Characters = () => {
           width: "95%",
           gap: "20px",
           justifyContent: "center",
-          visibility: `${!isLoading ? "visible" : "hidden"}`,
         }}
       >
         {array.map((character:any) => (
@@ -81,8 +37,6 @@ export const Characters = () => {
               alignItems: "center",
               transition: "transform 0.3s",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <img
               src={character.image}
